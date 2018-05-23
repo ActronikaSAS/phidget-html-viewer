@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Phidget viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Jérémy Cheynet <jeremy.cheynet@actronika.com>">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+
+    <style>
+            body {
+              padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+            }
+        .progress-bar {
+            -webkit-transition: none !important;
+            transition: none !important;
+        }
+    </style>
+    <style>
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 100px;
+            height: 100px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Phidget force sensor viewer</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li id="menu-measure" class="active"><a onclick='menuMeasure()'>Measure</a></li>
+                <li id="menu-readme"><a onclick='menuReadme()'>Readme</a></li>
+            </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row" id="measure">
+            <h1>Measure</h1>
+            <div id="start" style="display:block">
+                <p>En attente du serveur</p>
+            </div>
+            <div id="wait" style="display:none">
+                <h3>Wait sensor</h3>
+                <p>Connect sensor to USB</p>
+                <div class="loader"></div>
+            </div>
+            <div id="tare" style="display:none">
+                <p>Tare in progress, please wait</p>
+                <div class="progress">
+                    <div id="progress-tare" class="progress-bar progress-bar-striped active" role="progressbar"></div>
+                </div>
+            </div>
+            <div id="weight" style="display:none">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>
+                            <div id="weight-0"></div><br/>
+                            <div class="progress">
+                                    <div id="progress-0" class="progress-bar"></div>
+                            </div>
+                        </p>
+                        <p>
+                            <div id="weight-1"></div><br/>
+                            <div class="progress">
+                                    <div id="progress-1" class="progress-bar"></div>
+                            </div>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            <div id="weight-2"></div><br/>
+                            <div class="progress">
+                                    <div id="progress-2" class="progress-bar"></div>
+                            </div>
+                        </p>
+                        <p>
+                            <div id="weight-3"></div><br/>
+                            <div class="progress">
+                                    <div id="progress-3" class="progress-bar"></div>
+                            </div>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <button type="button" class="btn" onclick='tare()'>Tare</button>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="readme" style="display:none">
+            <div id="readme-contains"></div>
+        </div>
+    </div>
+</body>
+<script src="jquery-2.1.4.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="sha256.min.js"></script>
+<script src="phidget22.min.js"></script>
+<script src="sensor.js"></script>
+<script src="showdown.min.js"></script>
+<script src="readme.js"></script>
+<script>
+    sensorDisplay();
+
+    const converter = new showdown.Converter();
+    document.getElementById("readme-contains").innerHTML = converter.makeHtml(readmeContains);
+
+    function menuMeasure() {
+        document.getElementById("menu-measure").classList.add("active");
+        document.getElementById("menu-readme").classList.remove("active");
+        document.getElementById("measure").style.display = 'block';
+        document.getElementById("readme").style.display = 'none';
+    }
+
+    function menuReadme() {
+        document.getElementById("menu-measure").classList.remove("active");
+        document.getElementById("menu-readme").classList.add("active");
+        document.getElementById("measure").style.display = 'none';
+        document.getElementById("readme").style.display = 'block';
+    }
+
+    function tare() {
+        sensorInit();
+        sensorSetState(STATE_TARE);
+        sensorDisplay();
+    }
+</script>
+<script>
+    var conn = new phidget22.Connection(8989, 'localhost');
+
+    sensorSetState(STATE_WAIT);
+    sensorDisplay();
+
+    conn.connect().then(function() {
+            console.log('connected');
+            runExample();
+        }).catch(function(err) {
+            alert('failed to connect to server:' + err);
+        });
+
+    function runExample()
+    {
+        var values = [];
+
+        values[0] = new phidget22.VoltageRatioInput();
+        values[1] = new phidget22.VoltageRatioInput();
+        values[2] = new phidget22.VoltageRatioInput();
+        values[3] = new phidget22.VoltageRatioInput();
+
+        sensorInit();
+
+        values.forEach((ch, key) => {
+            ch.onAttach = function(value) {
+                sensorInit();
+                sensorSetState(STATE_TARE);
+                sensorDisplay();
+                ch.setDataInterval(10);
+                ch.setBridgeGain(phidget22.BridgeGain.GAIN_1X);
+            };
+            ch.onDetach = function(value) {
+                sensorSetState(STATE_WAIT);
+                sensorDisplay();
+            };
+            ch.onError = function(value) {
+                console.log("onError : ", value);
+            };
+            ch.onSensorChange = function(value) {
+                console.log("onSensorChange : ", value);
+            };
+            ch.onStateChange = function(value) {
+                console.log("onStateChange : ", value);
+            };
+            ch.onVoltageRatioChange = function(value) {
+                sensorIsr(key, value);
+            };
+
+            ch.open().then(function() {
+                console.log("Connected");
+            }).catch(function(err) {
+                console.log(err);
+            });
+        });
+    }
+</script>
+</html>
