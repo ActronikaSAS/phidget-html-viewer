@@ -9,6 +9,9 @@ const STATE_WAIT = 1;
 const STATE_TARE = 2;
 const STATE_WEIGHT = 3;
 
+const TARE_WAIT = 200;
+const TARE_POINT = 200;
+
 var avgValue = [];
 var avgSum = [];
 var pointer = [];
@@ -59,10 +62,13 @@ function sensorTare(sensor, value) {
         return 0;
     }
 
-    if (counterTare[sensor] <= 200) {
+    if (counterTare[sensor] <= TARE_WAIT) {
+        counterTare[sensor] += 1;
+        document.getElementById("progress-tare").style.width = counterTare[sensor] / 4 + '%';
+    } else if (counterTare[sensor] <= TARE_WAIT + TARE_POINT) {
         tare[sensor] += value;
         counterTare[sensor] += 1;
-        document.getElementById("progress-tare").style.width = counterTare[sensor] / 2+'%';
+        document.getElementById("progress-tare").style.width = counterTare[sensor] / 4 + '%';
     } else {
         sensorSetState(STATE_WEIGHT);
         sensorDisplay();
@@ -74,7 +80,7 @@ function sensorConvert(sensor, value) {
         return 0;
     }
 
-    value -= tare[sensor] / counterTare[sensor];
+    value -= tare[sensor] / TARE_POINT;
     return 959222 * value;
 }
 
