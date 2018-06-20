@@ -16,6 +16,7 @@ var avgValue = [];
 var avgSum = [];
 var pointer = [];
 var tare = [];
+var load = [];
 
 var counterTare = [];
 
@@ -75,13 +76,43 @@ function sensorTare(sensor, value) {
     }
 }
 
+function sensorSetLoad(load0, load1, load2, load3) {
+    let tmpLoad = parseInt(load0);
+    if (isNaN(tmpLoad)) {
+        load[0] = 0;
+    } else {
+        load[0] = tmpLoad;
+    }
+
+    tmpLoad = parseInt(load1);
+    if (isNaN(tmpLoad)) {
+        load[1] = 0;
+    } else {
+        load[1] = tmpLoad;
+    }
+
+    tmpLoad = parseInt(load2);
+    if (isNaN(tmpLoad)) {
+        load[2] = 0;
+    } else {
+        load[2] = tmpLoad;
+    }
+
+    tmpLoad = parseInt(load3);
+    if (isNaN(tmpLoad)) {
+        load[3] = 0;
+    } else {
+        load[3] = tmpLoad;
+    }
+}
+
 function sensorConvert(sensor, value) {
     if (sensor >= SENSOR) {
         return 0;
     }
 
     value -= tare[sensor] / TARE_POINT;
-    return 959222 * value;
+    return load[sensor] + 959222 * value;
 }
 
 function sensorIsr(sensor, value) {

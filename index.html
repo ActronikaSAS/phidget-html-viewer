@@ -86,32 +86,78 @@
             <div id="weight" style="display:none">
                 <div class="row">
                     <div class="col-md-6">
-                        <p>
-                            <div id="weight-0"></div><br/>
-                            <div class="progress">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div id="weight-0"></div><br/>
+                            </div>
+                            <div class="col-md-6">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" class="form-control" placeholder="load" id="pre-0">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="progress">
                                     <div id="progress-0" class="progress-bar"></div>
+                                </div>
                             </div>
-                        </p>
-                        <p>
-                            <div id="weight-1"></div><br/>
-                            <div class="progress">
-                                    <div id="progress-1" class="progress-bar"></div>
+                        </div>
+
+                        <div class="row">
+                                <div class="col-md-3">
+                                    <div id="weight-1"></div><br/>
+                                </div>
+                                <div class="col-md-6">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" placeholder="load" id="pre-1">
+                                </div>
                             </div>
-                        </p>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="progress">
+                                        <div id="progress-1" class="progress-bar"></div>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                     <div class="col-md-6">
-                        <p>
-                            <div id="weight-2"></div><br/>
-                            <div class="progress">
-                                    <div id="progress-2" class="progress-bar"></div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div id="weight-2"></div><br/>
+                                </div>
+                                <div class="col-md-6">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" placeholder="load" id="pre-2">
+                                </div>
                             </div>
-                        </p>
-                        <p>
-                            <div id="weight-3"></div><br/>
-                            <div class="progress">
-                                    <div id="progress-3" class="progress-bar"></div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="progress">
+                                        <div id="progress-2" class="progress-bar"></div>
+                                    </div>
+                                </div>
                             </div>
-                        </p>
+
+                        <div class="row">
+                                <div class="col-md-3">
+                                    <div id="weight-3"></div><br/>
+                                </div>
+                                <div class="col-md-6">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" placeholder="load" id="pre-3">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="progress">
+                                        <div id="progress-3" class="progress-bar"></div>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                 </div>
                 <div class="row">
@@ -151,8 +197,16 @@
         document.getElementById("readme").style.display = 'block';
     }
 
+    function setPreLoad() {
+        sensorSetLoad(document.getElementById("pre-0").value,
+            document.getElementById("pre-1").value,
+            document.getElementById("pre-2").value,
+            document.getElementById("pre-3").value);
+    }
+
     function tare() {
         sensorInit();
+        setPreLoad();
         sensorSetState(STATE_TARE);
         sensorDisplay();
     }
@@ -180,6 +234,7 @@
         values[3] = new phidget22.VoltageRatioInput();
 
         sensorInit();
+        setPreLoad();
 
         values.forEach((ch, key) => {
             ch.onAttach = function(value) {
